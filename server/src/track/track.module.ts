@@ -13,5 +13,8 @@ import { TrackService } from './track.service';
   ],
   controllers: [TrackController],
   providers: [TrackService, FileService],
+  exports: [
+    MongooseModule.forFeature([{ name: Track.name, schema: TrackSchema }]),
+  ],
 })
 export class TrackModule {}
