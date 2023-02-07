@@ -37,7 +37,9 @@ export class AlbumService {
   }
 
   async delete(id: Types.ObjectId): Promise<Types.ObjectId> {
-    const album = await this.albumModel.findByIdAndDelete(id);
+    const album = await this.albumModel.findById(id);
+    this.fileService.removeFile(album.picture);
+    album.delete();
     return album._id;
   }
 
@@ -64,7 +66,9 @@ export class AlbumService {
     }
 
     await album.save();
-    return album.populate('tracks');
+
+    const newAlbum = await album.populate('tracks');
+    return newAlbum;
   }
 
   async deleteTrack(
@@ -88,7 +92,10 @@ export class AlbumService {
   ): false | number {
     let trackIndex: false | number = false;
     for (let i = 0; i < album.tracks.length; i++) {
-      if (album.tracks[i]._id.toString() === trackId.toString()) {
+      if (
+        album.tracks[i] &&
+        album.tracks[i]._id.toString() === trackId.toString()
+      ) {
         trackIndex = i;
         break;
       }

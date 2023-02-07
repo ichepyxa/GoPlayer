@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileService, FileType } from 'file/file.service';
 import { Model, Types } from 'mongoose';
@@ -41,11 +41,19 @@ export class TrackService {
 
   async getOne(id: Types.ObjectId): Promise<Track> {
     const track = await this.trackModel.findById(id).populate('comments');
+
+    if (!track) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
+
     return track;
   }
 
   async delete(id: Types.ObjectId): Promise<Types.ObjectId> {
-    const track = await this.trackModel.findByIdAndDelete(id);
+    const track = await this.trackModel.findById(id);
+    this.fileService.removeFile(track.picture);
+    this.fileService.removeFile(track.audio);
+    track.delete();
     return track._id;
   }
 

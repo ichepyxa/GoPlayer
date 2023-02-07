@@ -10,11 +10,15 @@ export enum FileType {
 
 @Injectable()
 export class FileService {
+  private createPathToStaticDirectory(otherPath: string) {
+    return path.resolve(__dirname, '..', 'static', otherPath);
+  }
+
   createFile(type: FileType, file): string {
     try {
       const fileExtension = file.originalname.split('.').pop();
       const fileName = `${uuid.v4()}.${fileExtension}`;
-      const filePath = path.resolve(__dirname, '..', 'static', type);
+      const filePath = this.createPathToStaticDirectory(type);
 
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
@@ -27,5 +31,14 @@ export class FileService {
     }
   }
 
-  removeFile(fileName: string) {}
+  removeFile(filePath: string) {
+    try {
+      const fullFilePath = this.createPathToStaticDirectory(filePath);
+      if (fs.existsSync(fullFilePath)) {
+        fs.rmSync(fullFilePath);
+      }
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

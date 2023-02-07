@@ -33,7 +33,7 @@ export class AlbumController {
   @Post(':albumId/tracks')
   addTracks(
     @Param('albumId') id: Types.ObjectId,
-    @Body() tracks: Types.ObjectId[],
+    @Body('tracks') tracks: Types.ObjectId[],
   ) {
     return this.albumService.addTracks(id, tracks);
   }
